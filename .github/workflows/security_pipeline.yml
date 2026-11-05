@@ -1,0 +1,19 @@
+name: DevSecOps SAST Quality Gate
+
+on: [push, pull_request]
+
+jobs:
+  security_scan:
+    name: Semgrep Static Code Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep Security Scanner
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/ci
+            p/secrets
