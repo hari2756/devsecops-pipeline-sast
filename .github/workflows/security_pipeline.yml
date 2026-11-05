@@ -8,14 +8,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Pinned to full 40-character commit SHA to prevent mutable tag supply-chain risks
       - name: Check out source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Install Semgrep
         run: pip install semgrep
 
-      # Running semgrep with '--error' enforces the Quality Gate.
-      # If any vulnerability is found, it exits with an error code and turns the build RED.
+      # Targeting OWASP Top 10, Secrets, and GitHub Action CI configurations
       - name: Run Semgrep with Blocking Quality Gate
         run: |
-          semgrep scan --config "p/owasp-top-ten" --config "p/secrets" --error
+          semgrep scan --config "p/owasp-top-ten" --config "p/secrets" --config "p/python" --error
