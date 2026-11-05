@@ -11,9 +11,11 @@ jobs:
       - name: Check out source code
         uses: actions/checkout@v4
 
-      - name: Run Semgrep Security Scanner
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: >-
-            p/ci
-            p/secrets
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      # Running semgrep with '--error' enforces the Quality Gate.
+      # If any vulnerability is found, it exits with an error code and turns the build RED.
+      - name: Run Semgrep with Blocking Quality Gate
+        run: |
+          semgrep scan --config "p/owasp-top-ten" --config "p/secrets" --error
