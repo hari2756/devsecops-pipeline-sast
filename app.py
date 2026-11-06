@@ -16,7 +16,7 @@ def get_user():
     cursor = conn.cursor()
 
     # FIXED: parameterized query, user input is never joined into the SQL string
-    cursor.execute("SELECT * FROM users WHERE name = ?", (username,))
+    cursor.execute("SELECT * FROM users WHERE name = ?", (username))
 
     return str(cursor.fetchall())
 
