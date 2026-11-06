@@ -4,14 +4,12 @@ rules:
     languages: [python]
     severity: ERROR
     message: >-
-      SQL injection: user input from request.args flows into the SQL query string.
+      SQL injection: user input from request.args flows into cursor.execute().
       Use parameterized queries, e.g. cursor.execute("SELECT * FROM users WHERE name = ?", (username,))
     pattern-sources:
       - pattern: request.args.get(...)
     pattern-sinks:
-      - patterns:
-          - pattern: $CURSOR.execute($QUERY, ...)
-          - focus-metavariable: $QUERY
+      - pattern: $CURSOR.execute(...)
  
   - id: hardcoded-password
     languages: [python]
