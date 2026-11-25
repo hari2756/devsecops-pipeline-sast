@@ -1,18 +1,29 @@
-name: Semgrep Scan
- 
-on:
-  push:
-    branches: [main]
-  pull_request:
- 
+name: DevSecOps SAST Quality Gate
+
+on: [push, pull_request]
+
 jobs:
-  semgrep:
+  build_test_and_scan:
+    name: Functional Tests & Semgrep SAST
     runs-on: ubuntu-latest
-    container:
-      image: semgrep/semgrep
+
     steps:
-      - uses: actions/checkout@v4
- 
-      - name: Run Semgrep
-        # --error makes the job fail when findings exist
-        run: semgrep scan --config .semgrep/rules.yml --config p/python --error
+      - name: Check out source code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies & Scanner
+        run: |
+          pip install -r requirements.txt
+          pip install semgrep
+
+      - name: Run Functional Unit Tests (pytest)
+        run: pytest
+
+      - name: Run Semgrep Static Security Analysis
+        run: |
+          semgrep scan --config "p/python" --config "p/flask" --config "p/secrets" --error
