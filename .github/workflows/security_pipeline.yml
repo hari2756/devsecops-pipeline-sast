@@ -22,7 +22,7 @@ jobs:
           pip install semgrep
 
       - name: Run Functional Unit Tests (pytest)
-        run: pytest
+        run: python -m pytest
 
       - name: Run Semgrep Static Security Analysis
         run: |
