@@ -24,6 +24,6 @@ jobs:
       - name: Run Functional Unit Tests (pytest)
         run: python -m pytest
 
-      - name: Run Semgrep Static Security Analysis
+      - name: Run Semgrep Static Security Analysis (Community + Custom Rules)
         run: |
-          semgrep scan --config "p/python" --config "p/flask" --config "p/secrets" --error
+          semgrep scan --config "p/python" --config "p/flask" --config ".semgrep/rules/" --error

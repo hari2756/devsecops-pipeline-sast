@@ -1,0 +1,39 @@
+rules:
+  - id: custom-flask-hardcoded-secret
+    patterns:
+      - pattern: |
+          $KEY = "..."
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: (?i).*(secret|api_key|access_key|password|token).*
+      - pattern-not: |
+          $KEY = ""
+    message: >-
+      Custom Policy Violation: Hardcoded sensitive credential detected in '$KEY'.
+      Load secrets via environment variables (os.getenv) instead of committing plaintext strings.
+    languages: [python]
+    severity: ERROR
+
+  - id: custom-flask-debug-enabled
+    pattern: DEBUG = True
+    message: >-
+      Custom Policy Violation: Flask DEBUG mode is hardcoded to True.
+      Ensure debug mode is disabled or controlled via environment variables in production configurations.
+    languages: [python]
+    severity: WARNING
+
+  - id: custom-flask-unbounded-route-methods
+    patterns:
+      - pattern: |
+          @$APP.route($PATH)
+          def $FUNC(...):
+              ...
+      - pattern-not: |
+          @$APP.route($PATH, methods=[...])
+          def $FUNC(...):
+              ...
+    message: >-
+      Custom Policy Violation: Route '$PATH' does not explicitly restrict HTTP methods.
+      Define explicit methods=[...] to prevent unintended HTTP verb exposure.
+    languages: [python]
+    severity: INFO
