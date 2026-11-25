@@ -1,10 +1,10 @@
-name: DevSecOps SAST Quality Gate
+name: DevSecOps Multi-Tier Security Gate
 
 on: [push, pull_request]
 
 jobs:
   build_test_and_scan:
-    name: Functional Tests & Semgrep SAST
+    name: Unit Tests, SAST, SCA & Quality Gate
     runs-on: ubuntu-latest
 
     steps:
@@ -16,14 +16,31 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Dependencies & Scanner
+      - name: Install Dependencies & Scanners
         run: |
           pip install -r requirements.txt
-          pip install semgrep
+          pip install semgrep pip-audit
 
       - name: Run Functional Unit Tests (pytest)
         run: python -m pytest
 
-      - name: Run Semgrep Static Security Analysis (Community + Custom Rules)
+      - name: Run SAST Scan (Semgrep JSON Report)
         run: |
-          semgrep scan --config "p/python" --config "p/flask" --config ".semgrep/rules/" --error
+          semgrep scan --config "p/python" --config "p/flask" --config ".semgrep/rules/" --json --output semgrep_report.json
+
+      - name: Run SCA Dependency Scan (pip-audit JSON Report)
+        continue-on-error: true
+        run: |
+          pip-audit -r requirements.txt --format json --output pip_audit_report.json
+
+      - name: Upload Security Scan Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: devsecops-security-reports
+          path: |
+            semgrep_report.json
+            pip_audit_report.json
+
+      - name: Evaluate Programmatic Quality Gate
+        run: python scripts/quality_gate.py
